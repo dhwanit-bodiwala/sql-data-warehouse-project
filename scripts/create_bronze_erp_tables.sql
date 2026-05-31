@@ -22,7 +22,7 @@ IF OBJECT_ID('bronze.erp_cust_az12', 'U') IS NOT NULL
 GO
 
 CREATE TABLE bronze.erp_cust_az12 (
-    cid         INT PRIMARY KEY NOT NULL,
+    cid         VARCHAR(20) NOT NULL,
     bdate       DATE NOT NULL,
     gen         VARCHAR(20)
 );
@@ -34,7 +34,7 @@ IF OBJECT_ID('bronze.erp_loc_a101', 'U') IS NOT NULL
 GO
 
 CREATE TABLE bronze.erp_loc_a101 (
-    cid         INT PRIMARY KEY NOT NULL,
+    cid         VARCHAR(20) NOT NULL,
     cntry       VARCHAR(20)
 );
 GO
