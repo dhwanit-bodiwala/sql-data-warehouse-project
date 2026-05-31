@@ -10,30 +10,44 @@ Script Purpose:
     category data loaded directly from ERP source files.
 
 WARNING:
-    Ensure the bronze schema exists before executing this script.
+    Existing tables will be dropped and recreated.
 
-    Modifying table structures after data loads may impact
-    downstream ETL processes.
+    All data stored in these tables will be permanently deleted.
 ==================================================================
 */
 
 -- Customer demographic information
+IF OBJECT_ID('bronze.erp_cust_az12', 'U') IS NOT NULL
+    DROP TABLE bronze.erp_cust_az12;
+GO
+
 CREATE TABLE bronze.erp_cust_az12 (
     cid         INT PRIMARY KEY NOT NULL,
     bdate       DATE NOT NULL,
-    gender      VARCHAR(20)
+    gen         VARCHAR(20)
 );
+GO
 
 -- Customer location information
+IF OBJECT_ID('bronze.erp_loc_a101', 'U') IS NOT NULL
+    DROP TABLE bronze.erp_loc_a101;
+GO
+
 CREATE TABLE bronze.erp_loc_a101 (
     cid         INT PRIMARY KEY NOT NULL,
-    country     VARCHAR(20)
+    cntry       VARCHAR(20)
 );
+GO
 
 -- Product category information
+IF OBJECT_ID('bronze.erp_px_cat_g1v2', 'U') IS NOT NULL
+    DROP TABLE bronze.erp_px_cat_g1v2;
+GO
+
 CREATE TABLE bronze.erp_px_cat_g1v2 (
     id              NVARCHAR(20) PRIMARY KEY NOT NULL,
     cat             VARCHAR(20) NOT NULL,
     subcat          VARCHAR(20) NOT NULL,
     maintainence    VARCHAR(20) NOT NULL
 );
+GO
