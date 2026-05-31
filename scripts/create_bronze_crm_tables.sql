@@ -23,13 +23,13 @@ IF OBJECT_ID('bronze.crm_cust_info', 'U') IS NOT NULL
 GO
 
 CREATE TABLE bronze.crm_cust_info (
-    cst_id              INT PRIMARY KEY NOT NULL,
+    cst_id              INT,
     cst_key             NVARCHAR(30) NOT NULL,
     cst_firstname       VARCHAR(30) NOT NULL,
     cst_lastname        VARCHAR(30) NOT NULL,
     cst_marital_status  CHAR(1) NOT NULL,
     cst_gndr            CHAR(1) NOT NULL,
-    cst_create_date     DATE NOT NULL
+    cst_create_date     DATE
 );
 GO
 
@@ -42,8 +42,8 @@ CREATE TABLE bronze.crm_prd_info (
     prd_id          INT PRIMARY KEY NOT NULL,
     prd_key         NVARCHAR(30) NOT NULL,
     prd_nm          NVARCHAR(40) NOT NULL,
-    prd_cost        INT NOT NULL,
-    prd_line        CHAR(1) NOT NULL,
+    prd_cost        INT,
+    prd_line        VARCHAR(20),
     prd_start_dt    DATE NOT NULL,
     prd_end_dt      DATE NULL
 );
@@ -61,8 +61,8 @@ CREATE TABLE bronze.crm_sales_details (
     sls_order_dt    INT NOT NULL,
     sls_ship_dt     INT NOT NULL,
     sls_due_dt      INT NOT NULL,
-    sls_sales       INT NOT NULL,
+    sls_sales       INT,
     sls_quantity    INT NOT NULL,
-    sls_price       INT NOT NULL
+    sls_price       INT
 );
 GO
