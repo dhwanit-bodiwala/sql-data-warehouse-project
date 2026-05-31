@@ -11,14 +11,17 @@ Script Purpose:
     or transformation is applied.
 
 WARNING:
-    Ensure the bronze schema exists before executing this script.
+    Existing tables will be dropped and recreated.
 
-    Modifying table structures after data loads may impact
-    downstream ETL processes.
+    All data stored in these tables will be permanently deleted.
 ==================================================================
 */
 
 -- Customer information
+IF OBJECT_ID('bronze.crm_cust_info', 'U') IS NOT NULL
+    DROP TABLE bronze.crm_cust_info;
+GO
+
 CREATE TABLE bronze.crm_cust_info (
     cst_id              INT PRIMARY KEY NOT NULL,
     cst_key             NVARCHAR(30) NOT NULL,
@@ -28,8 +31,13 @@ CREATE TABLE bronze.crm_cust_info (
     cst_gndr            CHAR(1) NOT NULL,
     cst_create_date     DATE NOT NULL
 );
+GO
 
 -- Product information
+IF OBJECT_ID('bronze.crm_prd_info', 'U') IS NOT NULL
+    DROP TABLE bronze.crm_prd_info;
+GO
+
 CREATE TABLE bronze.crm_prd_info (
     prd_id          INT PRIMARY KEY NOT NULL,
     prd_key         NVARCHAR(30) NOT NULL,
@@ -39,8 +47,13 @@ CREATE TABLE bronze.crm_prd_info (
     prd_start_dt    DATE NOT NULL,
     prd_end_dt      DATE NULL
 );
+GO
 
 -- Sales transaction details
+IF OBJECT_ID('bronze.crm_sales_details', 'U') IS NOT NULL
+    DROP TABLE bronze.crm_sales_details;
+GO
+
 CREATE TABLE bronze.crm_sales_details (
     sls_ord_num     VARCHAR(20) NOT NULL,
     sls_prd_key     NVARCHAR(20) NOT NULL,
@@ -52,3 +65,4 @@ CREATE TABLE bronze.crm_sales_details (
     sls_quantity    INT NOT NULL,
     sls_price       INT NOT NULL
 );
+GO
