@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/28522749/README.md)
 # SQL Data Warehouse — Medallion Architecture
 
 A end-to-end Data Warehouse built on **SQL Server**, consolidating data from two source systems (CRM and ERP) through a three-layer **Medallion Architecture** (Bronze → Silver → Gold) into an analytics-ready Star Schema.
