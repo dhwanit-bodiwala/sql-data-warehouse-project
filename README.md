@@ -1,146 +1,126 @@
-# SQL Data Warehouse — Medallion Architecture
+# SQL Analytics Engineering Portfolio
 
-A end-to-end Data Warehouse built on **SQL Server**, consolidating data from two source systems (CRM and ERP) through a three-layer **Medallion Architecture** (Bronze → Silver → Gold) into an analytics-ready Star Schema.
-
----
-
-## Architecture
-
-![High Level Architecture](docs/data_architecture.jpeg)
-
-The warehouse is structured across three layers, each with a distinct responsibility:
-
-| Layer | Object Type | Load Strategy | Purpose |
-|-------|-------------|---------------|---------|
-| **Bronze** | Tables | Truncate & Insert (Full Load) | Raw ingestion — data stored as-is from source |
-| **Silver** | Tables | Truncate & Insert (Full Load) | Cleansed, standardized, and normalized data |
-| **Gold** | Views | No load (query-time) | Business-ready Star Schema for analytics |
+An end-to-end SQL project built on **SQL Server**, progressing from raw data ingestion through to production-ready analytical views. Three interconnected projects built on the same dataset and database.
 
 ---
 
-## Data Flow
+## Projects
 
-![Data Flow](docs/data_flow.jpeg)
+| # | Project | Description |
+|---|---------|-------------|
+| 1 | [Data Warehouse](#1-data-warehouse) | ETL pipeline — raw CSV → Medallion Architecture → Star Schema |
+| 2 | [Exploratory Data Analysis](#2-exploratory-data-analysis-eda) | SQL-based exploration of the Gold layer — distributions, rankings, time-series |
+| 3 | [Advanced Analytics](#3-advanced-analytics) | Window functions, segmentation, cumulative metrics, and report views |
 
-Six source tables across two systems flow through all three layers:
-
-**CRM** → `crm_sales_details`, `crm_cust_info`, `crm_prd_info`  
-**ERP** → `erp_cust_az12`, `erp_loc_a101`, `erp_px_cat_g1v2`
-
----
-
-## Data Model
-
-![Star Schema](docs/data_model.jpeg)
-
-The Gold layer exposes a **Sales Data Mart** built as a Star Schema with three views:
-
-- **`gold.dim_customers`** — Customer demographics enriched from CRM + ERP (country, birthdate, marital status, gender)
-- **`gold.dim_products`** — Product catalogue with category, subcategory, product line, and maintenance flag
-- **`gold.fact_sales`** — Sales transactions linked to both dimensions via surrogate keys
-
-> `sales_amount = quantity × price`
+All three projects run on the same **DataWarehouse** SQL Server database and consume the same Gold layer (`gold.dim_customers`, `gold.dim_products`, `gold.fact_sales`).
 
 ---
 
-## Data Integration
-
-![Data Integration](docs/data_integration.jpeg)
-
-The integration diagram shows how source tables relate across systems — CRM provides transactional and master data; ERP enriches it with location and product category data.
-
----
-
-## Project Structure
+## Repository Structure
 
 ```
 sql-data-warehouse-project/
 │
-├── datasets/               # Source CSV files (CRM and ERP)
+├── data_warehouse/                  # Project 1 — ETL & Star Schema
+│   ├── docs/
+│   │   ├── data_architecture.jpeg
+│   │   ├── data_flow.jpeg
+│   │   ├── data_integration.jpeg
+│   │   ├── data_model.jpeg
+│   │   ├── data_catalog.md
+│   │   └── naming_conventions.md
+│   ├── scripts/
+│   │   ├── setup/
+│   │   ├── bronze/
+│   │   ├── silver/
+│   │   └── gold/
+│   └── tests/
 │
-├── docs/
-│   ├── data_architecture.jpeg
-│   ├── data_flow.jpeg
-│   ├── data_integration.jpeg
-│   ├── data_model.jpeg
-│   ├── data_catalog.md         # Column-level documentation for Gold layer
-│   └── naming_conventions.md   # Naming standards for tables, columns, procedures
+├── exploratory_data_analysis (EDA)/ # Project 2 — EDA
+│   ├── 01_overview_metrics.sql
+│   ├── 02_dimension_distributions.sql
+│   ├── 03_rankings_top_n.sql
+│   ├── 04_time_series_analysis.sql
+│   └── 05_customer_segmentation_and_spend_analysis.sql
 │
-├── scripts/
-│   ├── setup/
-│   │   ├── 01_create_database.sql
-│   │   └── 02_load_layers.sql
-│   │
-│   ├── bronze/
-│   │   ├── 01_create_crm_tables.sql
-│   │   ├── 02_create_erp_tables.sql
-│   │   └── 03_load_bronze.sql       # Stored procedure: load_bronze
-│   │
-│   ├── silver/
-│   │   ├── 01_create_crm_tables.sql
-│   │   ├── 02_create_erp_tables.sql
-│   │   └── 03_load_silver.sql       # Stored procedure: load_silver
-│   │
-│   └── gold/
-│       ├── ddl_gold_dim_customers.sql
-│       ├── ddl_gold_dim_products.sql
-│       └── ddl_gold_fact_sales.sql
-│
-├── tests/
-│   ├── quality_checks_silver.sql
-│   └── quality_checks_gold.sql
+├── advance_analytics/               # Project 3 — Advanced Analytics
+│   ├── 01_cumulative_analysis.sql
+│   ├── 02_performance_analysis.sql
+│   ├── 03_part_to_whole_analysis.sql
+│   ├── 04_data_segmentation.sql
+│   ├── 05_report_customers.sql
+│   ├── 06_report_customers_monthly_spend.sql
+│   ├── 07_report_products.sql
+│   └── 08_report_products_monthly_revenue.sql
 │
 └── README.md
 ```
 
 ---
 
-## ETL Pipeline
+## 1. Data Warehouse
 
-### 1. Setup
-Create the database and initialize the three schema layers (`bronze`, `silver`, `gold`).
+Builds the foundation — a three-layer Medallion Architecture on SQL Server that ingests raw CRM and ERP CSV files and produces a Star Schema in the Gold layer.
 
-### 2. Bronze — Raw Ingestion
-Tables are created to mirror source structure exactly. Data is loaded via `BULK INSERT` from CSV files using the `load_bronze` stored procedure (full load, truncate & insert).
+**Layers:**
 
-### 3. Silver — Cleanse & Standardize
-The `load_silver` stored procedure applies:
-- Null handling and default substitution
-- Data type corrections and format standardization
-- Deduplication (most recent record per key)
-- Derived columns and business rule transformations
-- Data normalization across CRM and ERP tables
+| Layer | Type | Load Strategy | Purpose |
+|-------|------|---------------|---------|
+| Bronze | Tables | Truncate & Insert | Raw ingestion — data as-is from source |
+| Silver | Tables | Truncate & Insert | Cleansed, standardized, deduplicated |
+| Gold | Views | Query-time | Business-ready Star Schema |
 
-### 4. Gold — Star Schema Views
-Views in the Gold layer join and aggregate Silver tables into business-ready objects. No physical load — results are computed at query time.
+**Gold Layer Output:**
+- `gold.dim_customers` — customer demographics (CRM + ERP enriched)
+- `gold.dim_products` — product catalogue with category and cost
+- `gold.fact_sales` — sales transactions linked to both dimensions
+
+→ [Data Warehouse README](data_warehouse/README.md)
 
 ---
 
-## Data Quality
+## 2. Exploratory Data Analysis (EDA)
 
-Quality check scripts validate both the Silver and Gold layers before consumption:
+SQL-based exploration of the Gold layer across five analytical dimensions.
 
-- `tests/quality_checks_silver.sql` — checks on cleaned source tables
-- `tests/quality_checks_gold.sql` — checks on dimension and fact views
+| Script | What it answers |
+|--------|----------------|
+| `01_overview_metrics.sql` | Total sales, orders, customers, products — wide and long format |
+| `02_dimension_distributions.sql` | Customer and product distribution by country, gender, category |
+| `03_rankings_top_n.sql` | Top/bottom products and customers by revenue and order frequency |
+| `04_time_series_analysis.sql` | Revenue by year, month, week, and year-month combinations |
+| `05_customer_segmentation_and_spend_analysis.sql` | Spend buckets, order frequency, above-average spenders, regional breakdown |
+
+→ [EDA README](exploratory_data_analysis&#32;(EDA)/README.md)
+
+---
+
+## 3. Advanced Analytics
+
+Window functions, segmentation logic, and production report views consumed by analysts.
+
+| Script | What it does |
+|--------|-------------|
+| `01_cumulative_analysis.sql` | Monthly running total and moving average |
+| `02_performance_analysis.sql` | YoY change and avg performance flag per product |
+| `03_part_to_whole_analysis.sql` | Category revenue contribution % |
+| `04_data_segmentation.sql` | Product cost buckets and customer VIP/Regular/New segments |
+| `05_report_customers.sql` | `gold.report_customers` view — full customer profile |
+| `06_report_customers_monthly_spend.sql` | `gold.report_customers_monthly_spend` view |
+| `07_report_products.sql` | `gold.report_products` view — full product profile |
+| `08_report_products_monthly_revenue.sql` | `gold.report_products_monthly_revenue` view |
+
+→ [Advanced Analytics README](advance_analytics/README.md)
 
 ---
 
 ## Tech Stack
 
 - **SQL Server** — database engine
-- **T-SQL** — all ETL logic, stored procedures, and views
+- **T-SQL** — all ETL, stored procedures, window functions, and views
 - **SSMS** — development and execution environment
 - **Draw.io** — architecture and data model diagrams
 - **Git / GitHub** — version control
-
----
-
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [`data_catalog.md`](docs/data_catalog.md) | Column-level metadata for all Gold layer views |
-| [`naming_conventions.md`](docs/naming_conventions.md) | Naming standards for schemas, tables, columns, and stored procedures |
 
 ---
 
