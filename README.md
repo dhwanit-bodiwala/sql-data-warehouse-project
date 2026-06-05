@@ -1,4 +1,4 @@
-# SQL Analytics Engineering Portfolio
+# SQL Medallion Architecture Pipeline
 
 An end-to-end SQL project built on **SQL Server**, progressing from raw data ingestion through to production-ready analytical views. Three interconnected projects built on the same dataset and database.
 
